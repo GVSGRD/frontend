@@ -1,0 +1,111 @@
+/* src/styles/Sidebar.module.css */
+.sidebar {
+  width: 250px; /* Fixed width for desktop */
+  height: 100vh; /* Full height for desktop */
+  background: linear-gradient(to bottom, #FFFFFF, #F8F9FA); /* Elegant white-to-grey gradient */
+  color: #212529; /* Soft black text */
+  padding: 20px; /* Padding inside the sidebar */
+  position: fixed; /* Fixed position for desktop */
+  top: 0;
+  left: 0;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  overflow-y: auto; /* Enable scrolling if content overflows */
+  display: flex;
+  flex-direction: column;
+  z-index: 1000; /* Ensure sidebar is above other content */
+  transition: all 0.3s ease; /* Smooth transition for all properties */
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 30px;
+  color: #212529; /* Soft black for the logo */
+}
+
+.menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1; /* Take up remaining space */
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  margin: 8px 0;
+  border-radius: 8px;
+  color: #212529; /* Soft black text */
+  text-decoration: none;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.menuItem:hover {
+  background-color: #D6D8DB; /* Light hover grey */
+  color: #212529; /* Soft black text on hover */
+}
+
+.menuItem.active {
+  background-color: #E5E5E5; /* Medium grey for active item */
+  color: #212529; /* Soft black text for active item */
+}
+
+.icon {
+  font-size: 20px;
+  margin-right: 12px;
+  color: #212529; /* Soft black for icons */
+}
+
+.label {
+  font-size: 16px;
+}
+
+/* Mobile View */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%; /* Full width for mobile */
+    height: auto; /* Auto height for mobile */
+    position: fixed; /* Fixed position for mobile */
+    bottom: 0; /* Position at the bottom */
+    top: auto; /* Override top position */
+    left: 0;
+    flex-direction: row; /* Align items horizontally */
+    justify-content: space-around; /* Space out menu items */
+    padding: 10px; /* Reduce padding for mobile */
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1); /* Shadow at the top */
+    background: linear-gradient(to right, #F8F9FA, #E5E5E5); /* Soft grey gradient */
+  }
+
+  .logo {
+    display: none; /* Hide logo in mobile view */
+  }
+
+  .menu {
+    display: flex;
+    flex-direction: row; /* Align menu items horizontally */
+    gap: 10px; /* Space between menu items */
+    justify-content: space-around; /* Distribute space evenly */
+    width: 100%; /* Full width */
+  }
+
+  .menuItem {
+    flex-direction: column; /* Stack icon and label vertically */
+    align-items: center;
+    padding: 8px;
+    margin: 0;
+    flex: 1; /* Allow items to grow and take equal space */
+    text-align: center; /* Center text */
+  }
+
+  .icon {
+    margin-right: 0; /* Remove margin for mobile */
+    font-size: 18px; /* Slightly smaller icons */
+    margin-bottom: 4px; /* Space between icon and label */
+  }
+
+  .label {
+    font-size: 12px; /* Smaller labels for mobile */
+  }
+}
