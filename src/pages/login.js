@@ -1,4 +1,3 @@
-// src/pages/login.js
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 
@@ -11,7 +10,7 @@ export default function Login() {
     e.preventDefault();
     // Simulate login logic
     if (email && password) {
-      router.push('/'); // Redirect to Home after login
+      router.push('/home'); // Redirect to Home after login
     }
   };
 
@@ -49,13 +48,14 @@ const styles = {
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    height: '100vh',
-    backgroundColor: '#f0f0f0',
+    height: '100vh', // Full viewport height
+    backgroundColor: '#f0f0f0', // Match the background in _app.js
   },
   form: {
     display: 'flex',
     flexDirection: 'column',
     gap: '10px',
+    width: '300px', // Set a fixed width for the form
   },
   input: {
     padding: '10px',

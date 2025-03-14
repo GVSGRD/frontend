@@ -1,4 +1,3 @@
-// src/pages/_app.js
 import '../styles/globals.css'; // Import global styles
 import Sidebar from '../components/Sidebar'; // Import Sidebar component
 import { useRouter } from 'next/router';
@@ -6,7 +5,7 @@ import { useState, useEffect } from 'react';
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
-  const isLoginPage = router.pathname === '/login'; // Check if current page is login
+  const isLoginPage = router.pathname === '/'; // Check if current page is login
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -28,12 +27,12 @@ function MyApp({ Component, pageProps }) {
       <div
         style={{
           flex: 1,
-          padding: '20px',
-          paddingBottom: router.pathname !== '/login' ? '80px' : '20px', // Add padding for bottom navbar
-          marginLeft: router.pathname !== '/login' && !isMobile ? '250px' : '0', // Add margin for sidebar
+          padding: isLoginPage ? '0' : '20px', // No padding for login page
+          paddingBottom: isLoginPage ? '0' : '80px', // No padding for login page
+          marginLeft: isLoginPage || isMobile ? '0' : '250px', // No margin for login page or mobile
           maxWidth: '100%', // Ensure content doesn't overflow
           overflowX: 'hidden', // Hide horizontal overflow
-          backgroundColor: '#F8F9FA', // Light grey background
+          backgroundColor: isLoginPage ? '#f0f0f0' : '#F8F9FA', // Use login page background for login
           transition: 'margin-left 0.3s ease', // Smooth transition for margin-left
         }}
       >
