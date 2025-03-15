@@ -16,7 +16,7 @@ export default function Sidebar({ isMobile }) {
 
   // Define menu items with icons
   const menuItems = [
-    { href: '/', icon: <FaHome />, label: 'Home' },
+    { href: '/home', icon: <FaHome />, label: 'Home' },
     { href: '/teams', icon: <FaUsers />, label: 'Teams' },
     { href: '/messages', icon: <FaEnvelope />, label: 'Messages' },
     { href: '/notifications', icon: <FaBell />, label: 'Notifications' },
