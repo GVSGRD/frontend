@@ -68,15 +68,20 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!validateInputs()) return;
-
+  
     setLoading(true);
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-
-      const existingUser = await getUserByEmail(user.email);
+  
+      // Get Firebase ID token
+      const idToken = await user.getIdToken();
+  
+      // Send the token to your backend for validation
+      const existingUser = await getUserByEmail(user.email, idToken);
       if (existingUser) {
         localStorage.setItem('userId', existingUser.id);
+        localStorage.setItem('token', idToken);
         router.push('/home');
       } else {
         const newUser = {
@@ -84,9 +89,10 @@ export default function Login() {
           userName: generateRandomUsername(),
           email: user.email,
         };
-
-        const createdUser = await createUser(newUser);
+  
+        const createdUser = await createUser(newUser, idToken);
         localStorage.setItem('userId', createdUser.id);
+        localStorage.setItem('token', idToken); // Store the Firebase ID token
         router.push('/home');
       }
     } catch (error) {
@@ -96,13 +102,16 @@ export default function Login() {
       setLoading(false);
     }
   };
-
+  
   const handleGoogleLogin = async () => {
     setLoading(true);
     try {
       const result = await signInWithPopup(auth, new GoogleAuthProvider());
       const user = result.user;
-
+  
+      const idToken = await user.getIdToken();
+      localStorage.setItem('token', idToken);
+  
       const existingUser = await getUserByEmail(user.email);
       if (existingUser) {
         localStorage.setItem('userId', existingUser.id);
@@ -113,9 +122,10 @@ export default function Login() {
           userName: generateRandomUsername(),
           email: user.email,
         };
-
-        const createdUser = await createUser(newUser);
+  
+        const createdUser = await createUser(newUser, idToken);
         localStorage.setItem('userId', createdUser.id);
+        localStorage.setItem('token', idToken);
         router.push('/home');
       }
     } catch (error) {
