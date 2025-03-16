@@ -2,64 +2,56 @@
 import Head from 'next/head';
 import { Card, CardHeader, CardContent, Typography, Avatar, List, ListItem, ListItemAvatar, ListItemText, Button, Grid } from '@mui/material';
 import { FaUserPlus, FaCheck, FaTimes } from 'react-icons/fa'; // React Icons
+import { useState, useEffect } from 'react';
+import { getRequestsByUserId, acceptRequest, rejectRequest } from '../utils/api';
 
 export default function Requests() {
-  // Sample data for requests
-  const requests = [
-    {
-      id: 1,
-      user: 'John Doe',
-      type: 'teamJoin',
-      teamName: 'Tech Innovators',
-      timestamp: '2 hours ago',
-      avatar: '/avatar1.jpg', // Replace with your avatar path
-    },
-    {
-      id: 2,
-      user: 'Jane Smith',
-      type: 'follow',
-      timestamp: '5 hours ago',
-      avatar: '/avatar2.jpg', // Replace with your avatar path
-    },
-    {
-      id: 3,
-      user: 'Alice Johnson',
-      type: 'teamJoin',
-      teamName: 'Food Lovers',
-      timestamp: '1 day ago',
-      avatar: '/avatar3.jpg', // Replace with your avatar path
-    },
-    {
-      id: 4,
-      user: 'Bob Brown',
-      type: 'follow',
-      timestamp: '3 days ago',
-      avatar: '/avatar4.jpg', // Replace with your avatar path
-    },
-  ];
+  const [requests, setRequests] = useState([]);
 
-  // Helper function to get the appropriate message based on request type
-  const getRequestMessage = (request) => {
-    switch (request.type) {
-      case 'teamJoin':
-        return `wants to join your team "${request.teamName}".`;
-      case 'follow':
-        return 'wants to follow you.';
-      default:
-        return 'sent you a request.';
+  // Fetch requests on component mount
+  useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        const userId = localStorage.getItem('userId'); // Get user ID from localStorage
+        const data = await getRequestsByUserId(userId);
+        setRequests(data);
+      } catch (error) {
+        console.error('Error fetching requests:', error);
+      }
+    };
+
+    fetchRequests();
+  }, []);
+
+  // Handle accept request
+  const handleAccept = async (requestId) => {
+    try {
+      await acceptRequest(requestId);
+      setRequests((prevRequests) =>
+        prevRequests.filter((request) => request.id !== requestId)
+      );
+      console.log(`Accepted request with ID: ${requestId}`);
+    } catch (error) {
+      console.error('Error accepting request:', error);
     }
   };
 
-  // Handle accept request
-  const handleAccept = (requestId) => {
-    console.log(`Accepted request with ID: ${requestId}`);
-    // Add logic to handle acceptance (e.g., update state or API call)
+  // Handle reject request
+  const handleReject = async (requestId) => {
+    try {
+      await rejectRequest(requestId);
+      setRequests((prevRequests) =>
+        prevRequests.filter((request) => request.id !== requestId)
+      );
+      console.log(`Rejected request with ID: ${requestId}`);
+    } catch (error) {
+      console.error('Error rejecting request:', error);
+    }
   };
 
-  // Handle reject request
-  const handleReject = (requestId) => {
-    console.log(`Rejected request with ID: ${requestId}`);
-    // Add logic to handle rejection (e.g., update state or API call)
+  // Helper function to get the appropriate message based on request type
+  const getRequestMessage = (request) => {
+    return `${request.user.name} wants to join your team "${request.team.name}".`;
   };
 
   return (
@@ -108,8 +100,8 @@ export default function Requests() {
                 {/* Avatar */}
                 <ListItemAvatar sx={{ minWidth: 'auto', marginRight: { xs: 0, sm: '16px' } }}>
                   <Avatar
-                    src={request.avatar}
-                    alt={request.user}
+                    src={request.user.profileImageUrl}
+                    alt={request.user.name}
                     sx={{
                       width: { xs: 48, sm: 56 },
                       height: { xs: 48, sm: 56 },
@@ -130,7 +122,7 @@ export default function Requests() {
                         fontSize: { xs: '0.9rem', sm: '1rem' }, // Smaller font on mobile
                       }}
                     >
-                      <strong>{request.user}</strong> {getRequestMessage(request)}
+                      {getRequestMessage(request)}
                     </Typography>
                   }
                   secondary={
@@ -142,7 +134,7 @@ export default function Requests() {
                         fontSize: { xs: '0.75rem', sm: '0.875rem' }, // Smaller font on mobile
                       }}
                     >
-                      {request.timestamp}
+                      {new Date(request.joinDate).toLocaleString()}
                     </Typography>
                   }
                   sx={{ marginRight: { xs: 0, sm: '16px' }, flex: 1 }} // Adjust margin for mobile
