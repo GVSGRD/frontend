@@ -1,39 +1,86 @@
 import Head from 'next/head';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
+import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardContent, CardActions, Avatar, IconButton, Typography, Button, TextField, InputAdornment } from '@mui/material';
-import { FaHeart, FaComment, FaShare, FaUserPlus, FaSearch } from 'react-icons/fa'; // React Icons
+import { FaHeart, FaComment, FaShare, FaUserPlus, FaSearch, FaTrash } from 'react-icons/fa';
+import { getAllPosts, createLike, deleteLike, getLikesByPostId, createComment, deleteComment, getCommentsByPostId } from '../utils/api';
 
 export default function Home() {
-  // Sample data for posts
-  const posts = [
-    {
-      id: 1,
-      teamName: 'Tech Innovators',
-      topic: 'Software',
-      description: 'Discover the latest trends in software development and how they are shaping the future of technology. From AI to blockchain, we cover it all.',
-      image: '/img1.jpg', // Replace with your image path
-      likes: 120,
-      comments: 45,
-    },
-    {
-      id: 2,
-      teamName: 'Cinephiles United',
-      topic: 'Movie',
-      description: 'Join us as we discuss the most anticipated movies of the year and their impact on the film industry. From indie gems to blockbusters, we’ve got you covered.',
-      image: '/img2.jpg', // Replace with your image path
-      likes: 98,
-      comments: 32,
-    },
-    {
-      id: 3,
-      teamName: 'Food Lovers',
-      topic: 'Food',
-      description: 'Explore delicious recipes and culinary tips from around the world to elevate your cooking game. From street food to fine dining, we celebrate all things food.',
-      image: '/img3.jpg', // Replace with your image path
-      likes: 150,
-      comments: 60,
-    },
-  ];
+  const router = useRouter();
+  const [posts, setPosts] = useState([]);
+  const [likedPosts, setLikedPosts] = useState(new Set());
+  const [commentInputs, setCommentInputs] = useState({});
+  const [comments, setComments] = useState({});
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const postsData = await getAllPosts();
+        setPosts(postsData);
+        postsData.forEach(async (post) => {
+          const likesData = await getLikesByPostId(post.id);
+          if (likesData.some(like => like.userId === currentUserId)) {
+            setLikedPosts(prev => new Set(prev.add(post.id)));
+          }
+          const commentsData = await getCommentsByPostId(post.id);
+          setComments(prev => ({ ...prev, [post.id]: commentsData }));
+        });
+      } catch (error) {
+        console.error('Error fetching posts:', error);
+      }
+    };
+    fetchPosts();
+  }, []);
+
+  const currentUserId = 1; // Replace with actual current user ID
+
+  const handleLike = async (postId) => {
+    try {
+      if (likedPosts.has(postId)) {
+        const likeId = await getLikesByPostId(postId).then(likes => likes.find(like => like.userId === currentUserId)?.id);
+        if (likeId) {
+          await deleteLike(likeId);
+          setLikedPosts(prev => {
+            const newLikedPosts = new Set(prev);
+            newLikedPosts.delete(postId);
+            return newLikedPosts;
+          });
+        }
+      } else {
+        await createLike(postId, currentUserId);
+        setLikedPosts(prev => new Set(prev.add(postId)));
+      }
+    } catch (error) {
+      console.error('Error handling like:', error);
+    }
+  };
+
+  const handleComment = async (postId, content) => {
+    if (!content.trim()) return;
+    try {
+      const newComment = await createComment(postId, currentUserId, content);
+      setComments(prev => ({
+        ...prev,
+        [postId]: [...(prev[postId] || []), newComment],
+      }));
+      setCommentInputs(prev => ({ ...prev, [postId]: '' }));
+    } catch (error) {
+      console.error('Error creating comment:', error);
+    }
+  };
+
+  const handleDeleteComment = async (postId, commentId) => {
+    try {
+      await deleteComment(commentId);
+      setComments(prev => ({
+        ...prev,
+        [postId]: prev[postId].filter(comment => comment.id !== commentId),
+      }));
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+    }
+  };
 
   return (
     <div style={{ padding: '20px', backgroundColor: '#fafafa', minHeight: '100vh' }}>
@@ -52,10 +99,10 @@ export default function Home() {
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <FaSearch style={{ color: '#6c757d' }} /> {/* Search icon */}
+                <FaSearch style={{ color: '#6c757d' }} />
               </InputAdornment>
             ),
-            style: { borderRadius: '24px', backgroundColor: '#fff' }, // Rounded search bar
+            style: { borderRadius: '24px', backgroundColor: '#fff' },
           }}
         />
       </div>
@@ -66,51 +113,53 @@ export default function Home() {
           <Card key={post.id} style={{ marginBottom: '20px', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)' }}>
             <CardHeader
               avatar={
-                <Avatar src="/logo.png" alt="Logo" sx={{ width: 48, height: 48 }} /> // Simple avatar
+                <Avatar src={post.user.avatar} alt="User Avatar" sx={{ width: 48, height: 48 }} />
               }
               title={
                 <Typography variant="h6" fontWeight="bold" color="text.primary">
-                  {post.teamName}
+                  {post.user.name}
                 </Typography>
               }
               subheader={
-                <Typography variant="body2" color="text.secondary">
-                  {post.topic}
-                </Typography>
+                <Button
+                  variant="text"
+                  color="primary"
+                  onClick={() => router.push(`/team/${post.team.id}`)}
+                  sx={{ textTransform: 'none', padding: 0 }}
+                >
+                  {post.team.name}
+                </Button>
               }
-              sx={{ padding: '16px' }} // Consistent padding
+              sx={{ padding: '16px' }}
             />
             <CardContent sx={{ padding: '16px' }}>
               <Typography variant="body1" color="text.primary" paragraph>
-                {post.description}
+                {post.content}
               </Typography>
-
-              {/* Optional Image */}
-              {post.image && (
-                <div style={{ marginTop: '16px' }}>
-                  <Image
-                    src={post.image}
-                    alt={post.topic}
-                    width={600}
-                    height={400}
-                    style={{ borderRadius: '8px', width: '100%', height: 'auto' }}
-                  />
-                </div>
-              )}
+              {/* Use static image from public folder */}
+              <div style={{ marginTop: '16px' }}>
+                <Image
+                  src="/img1.jpg" // Path to the static image in the public folder
+                  alt="Post Media"
+                  width={600}
+                  height={400}
+                  style={{ borderRadius: '8px', width: '100%', height: 'auto' }}
+                />
+              </div>
             </CardContent>
 
             <CardActions style={{ display: 'flex', justifyContent: 'space-between', padding: '16px' }}>
               <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                <IconButton aria-label="like" sx={{ color: 'text.secondary' }}>
+                <IconButton aria-label="like" sx={{ color: likedPosts.has(post.id) ? 'red' : 'text.secondary' }} onClick={() => handleLike(post.id)}>
                   <FaHeart />
                   <Typography variant="body2" color="text.secondary" sx={{ marginLeft: '8px' }}>
-                    {post.likes}
+                    {post.likeCount}
                   </Typography>
                 </IconButton>
                 <IconButton aria-label="comment" sx={{ color: 'text.secondary' }}>
                   <FaComment />
                   <Typography variant="body2" color="text.secondary" sx={{ marginLeft: '8px' }}>
-                    {post.comments}
+                    {post.commentsCount}
                   </Typography>
                 </IconButton>
                 <IconButton aria-label="share" sx={{ color: 'text.secondary' }}>
@@ -121,6 +170,58 @@ export default function Home() {
                 Join
               </Button>
             </CardActions>
+
+            {/* Comments Section */}
+            <div style={{ padding: '16px', borderTop: '1px solid #e0e0e0' }}>
+              <Typography variant="body2" fontWeight="bold" color="text.primary" gutterBottom>
+                Comments
+              </Typography>
+              {comments[post.id]?.map((comment) => (
+                <div key={comment.id} style={{ marginBottom: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Avatar src={comment.user.profileImageUrl} alt="User Avatar" sx={{ width: 32, height: 32 }} />
+                    <Typography variant="body2" color="text.primary">
+                      <strong>{comment.user.name}:</strong> {comment.content}
+                    </Typography>
+                    {comment.user.id === currentUserId && (
+                      <IconButton size="small" onClick={() => handleDeleteComment(post.id, comment.id)}>
+                        <FaTrash />
+                      </IconButton>
+                    )}
+                  </div>
+                  {comment.replies?.map((reply) => (
+                    <div key={reply.id} style={{ marginLeft: '32px', marginTop: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Avatar src={reply.user.profileImageUrl} alt="User Avatar" sx={{ width: 24, height: 24 }} />
+                        <Typography variant="body2" color="text.primary">
+                          <strong>{reply.user.name}:</strong> {reply.content}
+                        </Typography>
+                        {reply.user.id === currentUserId && (
+                          <IconButton size="small" onClick={() => handleDeleteComment(post.id, reply.id)}>
+                            <FaTrash />
+                          </IconButton>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ))}
+              <TextField
+                fullWidth
+                placeholder="Add a comment..."
+                variant="outlined"
+                value={commentInputs[post.id] || ''}
+                onChange={(e) =>
+                  setCommentInputs((prev) => ({ ...prev, [post.id]: e.target.value }))
+                }
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    handleComment(post.id, commentInputs[post.id]);
+                  }
+                }}
+                sx={{ marginTop: '16px' }}
+              />
+            </div>
           </Card>
         ))}
       </div>

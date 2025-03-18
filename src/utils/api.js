@@ -257,3 +257,122 @@ export const rejectRequest = async (requestId) => {
     throw error;
   }
 };
+
+
+// Fetch all posts
+export const getAllPosts = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/post/all`, getAuthHeader());
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    throw error;
+  }
+};
+
+// Like a post
+export const createLike = async (postId, userId) => {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/like/create`,
+      { post: postId, userId },
+      getAuthHeader()
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error liking post:', error);
+    throw error;
+  }
+};
+
+// Unlike a post
+export const deleteLike = async (likeId) => {
+  try {
+    await axios.delete(`${API_BASE_URL}/like/delete/${likeId}`, getAuthHeader());
+  } catch (error) {
+    console.error('Error unliking post:', error);
+    throw error;
+  }
+};
+
+// Get likes by post ID
+export const getLikesByPostId = async (postId) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/like/post/${postId}`, getAuthHeader());
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching likes:', error);
+    throw error;
+  }
+};
+
+// Create a comment
+export const createComment = async (postId, userId, content, parentCommentId = null) => {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/comment/create`,
+      { postId, user: { id: userId }, parentCommentId, content },
+      getAuthHeader()
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error creating comment:', error);
+    throw error;
+  }
+};
+
+// Delete a comment
+export const deleteComment = async (commentId) => {
+  try {
+    await axios.delete(`${API_BASE_URL}/comment/delete/${commentId}`, getAuthHeader());
+  } catch (error) {
+    console.error('Error deleting comment:', error);
+    throw error;
+  }
+};
+
+// Get comments by post ID
+export const getCommentsByPostId = async (postId) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/comment/post/${postId}`, getAuthHeader());
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching comments:', error);
+    throw error;
+  }
+};
+
+
+
+// Fetch all chats
+export const getAllChats = async () => {
+  try {
+    const response = await axios.get(`http://localhost:9094/api/chats`, getAuthHeader());
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching chats:', error);
+    throw error;
+  }
+};
+
+// Fetch messages for a specific chat
+export const getMessagesByChatId = async (chatId) => {
+  try {
+    const response = await axios.get(`http://localhost:9094/api/chats/${chatId}/messages`, getAuthHeader());
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching messages:', error);
+    throw error;
+  }
+};
+
+// Send a message
+export const sendMessage = async (message) => {
+  try {
+    const response = await axios.post(`http://localhost:9094/api/messages`, message, getAuthHeader());
+    return response.data;
+  } catch (error) {
+    console.error('Error sending message:', error);
+    throw error;
+  }
+};
