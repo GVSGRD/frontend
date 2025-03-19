@@ -1,11 +1,13 @@
 // src/pages/requests/index.js
 import Head from 'next/head';
+import { useRouter } from 'next/router'; // Import useRouter
 import { Card, CardHeader, CardContent, Typography, Avatar, List, ListItem, ListItemAvatar, ListItemText, Button, Grid } from '@mui/material';
 import { FaUserPlus, FaCheck, FaTimes } from 'react-icons/fa'; // React Icons
 import { useState, useEffect } from 'react';
 import { getRequestsByUserId, acceptRequest, rejectRequest } from '../utils/api';
 
 export default function Requests() {
+  const router = useRouter(); // Initialize useRouter
   const [requests, setRequests] = useState([]);
 
   // Fetch requests on component mount
@@ -51,7 +53,34 @@ export default function Requests() {
 
   // Helper function to get the appropriate message based on request type
   const getRequestMessage = (request) => {
-    return `${request.user.name} wants to join your team "${request.team.name}".`;
+    return (
+      <>
+        <span
+          onClick={() => router.push(`/profile/${request.user.id}`)}
+          style={{
+            cursor: 'pointer',
+            color: '#1976d2', // Blue color
+            fontWeight: 500, // Slightly bold
+            '&:hover': { textDecoration: 'underline' }, // Underline on hover
+          }}
+        >
+          {request.user.name}
+        </span>{' '}
+        wants to join your team{' '}
+        <span
+          onClick={() => router.push(`/team/${request.team.id}`)}
+          style={{
+            cursor: 'pointer',
+            color: '#1976d2', // Blue color
+            fontWeight: 500, // Slightly bold
+            '&:hover': { textDecoration: 'underline' }, // Underline on hover
+          }}
+        >
+          {request.team.name}
+        </span>
+        .
+      </>
+    );
   };
 
   return (
@@ -106,7 +135,9 @@ export default function Requests() {
                       width: { xs: 48, sm: 56 },
                       height: { xs: 48, sm: 56 },
                       boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                      cursor: 'pointer', // Add cursor pointer
                     }}
+                    onClick={() => router.push(`/profile/${request.user.id}`)} // Navigate to user profile
                   />
                 </ListItemAvatar>
 

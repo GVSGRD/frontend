@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import { useRouter } from 'next/router'; // Move useRouter to the top level
 import {
   Card,
   CardHeader,
@@ -15,7 +16,6 @@ import {
   TextField,
   IconButton,
   Box,
-  Modal,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -49,7 +49,7 @@ import {
   updateSkill,
   deleteSkill,
   getSkillsByUser,
-} from '../utils/api';
+} from '../../utils/api';
 
 // Reusable Editable Text Component
 const EditableText = ({ isEditMode, value, onChange, multiline, rows, variant = 'body1', fontWeight = 'normal' }) => {
@@ -109,16 +109,18 @@ const ProfileHeader = ({ profile, isEditMode, toggleEditMode, handleInputChange,
           </>
         }
         action={
-          isEditMode ? (
-            <Button onClick={handleSave} variant="contained" color="primary">
-              Save
-            </Button>
-          ) : (
-            <IconButton onClick={toggleEditMode} sx={{ color: 'text.primary' }}>
-              <FaEdit />
-            </IconButton>
-          )
-        }
+            profile.id == localStorage.getItem('userId') ? (
+                isEditMode ? (
+                  <Button onClick={handleSave} variant="contained" color="primary">
+                    Save
+                  </Button>
+                ) : (
+                  <IconButton onClick={toggleEditMode} sx={{ color: 'text.primary' }}>
+                    <FaEdit />
+                  </IconButton>
+                )
+              ) : null
+            }
         sx={{ padding: '24px' }}
       />
     </Card>
@@ -500,7 +502,12 @@ const SkillsSection = ({ skills, isEditMode, handleAddSkill, handleDeleteSkill }
 
 // Main Profile Component
 export default function Profile() {
+  const router = useRouter(); // Move useRouter to the top level
+  const { id: userId } = router.query; // Extract userId from the URL
+
   const [isEditMode, setIsEditMode] = useState(false);
+    
+
   const [profile, setProfile] = useState({
     id: 1,
     name: 'John Doe',
@@ -522,11 +529,7 @@ export default function Profile() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const userId = localStorage.getItem('userId');
-        if (!userId) {
-          console.error('User ID not found in localStorage');
-          return;
-        }
+        if (!userId) return; // Return early if userId is not available
 
         const user = await getUserById(userId);
         setProfile(user);
@@ -545,7 +548,7 @@ export default function Profile() {
     };
 
     fetchData();
-  }, []);
+  }, [userId]); // Add userId as a dependency
 
   const toggleEditMode = () => setIsEditMode(!isEditMode);
 

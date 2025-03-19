@@ -14,6 +14,7 @@ const getAuthHeader = () => {
   };
 };
 
+// User APIs
 export const createUser = async (userData) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/user/create`, userData, getAuthHeader());
@@ -58,6 +59,7 @@ export const updateUser = async (userData) => {
   }
 };
 
+// Experience APIs
 export const createExperience = async (experienceData) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/experience/create`, experienceData, getAuthHeader());
@@ -97,6 +99,7 @@ export const getExperiencesByUser = async (userId) => {
   }
 };
 
+// Education APIs
 export const createEducation = async (educationData) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/education/create`, educationData, getAuthHeader());
@@ -136,6 +139,7 @@ export const getEducationsByUser = async (userId) => {
   }
 };
 
+// Skill APIs
 export const createSkill = async (skillData) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/skill/create`, skillData, getAuthHeader());
@@ -175,6 +179,7 @@ export const getSkillsByUser = async (userId) => {
   }
 };
 
+// Team APIs
 export const getTeamsByUserId = async (userId) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/team-user/user/${userId}`, getAuthHeader());
@@ -215,9 +220,71 @@ export const getTechStacksByTeamId = async (teamId) => {
   }
 };
 
+// Team User APIs
+export const createTeamUser = async (teamUserData) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/team-user/create`, teamUserData, getAuthHeader());
+    return response.data;
+  } catch (error) {
+    console.error('Error creating team user:', error);
+    throw error;
+  }
+};
 
+export const getTeamUserByUserIdAndTeamId = async (userId, teamId) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/team-user/user/${userId}/team/${teamId}`, getAuthHeader());
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.status === 404) {
+      return null; // No entry found
+    }
+    console.error('Error fetching team user:', error);
+    throw error;
+  }
+};
 
-// Fetch requests by user ID
+export const updateTeam = async (teamData) => {
+  try {
+    const response = await axios.put(`${API_BASE_URL}/team/update`, teamData, getAuthHeader());
+    return response.data;
+  } catch (error) {
+    console.error('Error updating team:', error);
+    throw error;
+  }
+};
+
+// Tech Stack APIs
+export const createTechStack = async (techStackData) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/techstack/create`, techStackData, getAuthHeader());
+    return response.data;
+  } catch (error) {
+    console.error('Error creating tech stack:', error);
+    throw error;
+  }
+};
+
+export const updateTechStack = async (techStackData) => {
+  try {
+    const response = await axios.put(`${API_BASE_URL}/techstack/update`, techStackData, getAuthHeader());
+    return response.data;
+  } catch (error) {
+    console.error('Error updating tech stack:', error);
+    throw error;
+  }
+};
+
+export const deleteTechStack = async (id) => {
+  try {
+    await axios.delete(`${API_BASE_URL}/techstack/delete/${id}`, getAuthHeader());
+  } catch (error) {
+    console.error('Error deleting tech stack:', error);
+    throw error;
+  }
+};
+
+// Request APIs
 export const getRequestsByUserId = async (userId) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/team-user/request/${userId}`, getAuthHeader());
@@ -228,7 +295,6 @@ export const getRequestsByUserId = async (userId) => {
   }
 };
 
-// Accept a request
 export const acceptRequest = async (requestId) => {
   try {
     const response = await axios.put(
@@ -243,7 +309,6 @@ export const acceptRequest = async (requestId) => {
   }
 };
 
-// Reject a request
 export const rejectRequest = async (requestId) => {
   try {
     const response = await axios.put(
@@ -258,8 +323,7 @@ export const rejectRequest = async (requestId) => {
   }
 };
 
-
-// Fetch all posts
+// Post APIs
 export const getAllPosts = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}/post/all`, getAuthHeader());
@@ -270,7 +334,6 @@ export const getAllPosts = async () => {
   }
 };
 
-// Like a post
 export const createLike = async (postId, userId) => {
   try {
     const response = await axios.post(
@@ -285,7 +348,6 @@ export const createLike = async (postId, userId) => {
   }
 };
 
-// Unlike a post
 export const deleteLike = async (likeId) => {
   try {
     await axios.delete(`${API_BASE_URL}/like/delete/${likeId}`, getAuthHeader());
@@ -295,7 +357,6 @@ export const deleteLike = async (likeId) => {
   }
 };
 
-// Get likes by post ID
 export const getLikesByPostId = async (postId) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/like/post/${postId}`, getAuthHeader());
@@ -306,7 +367,7 @@ export const getLikesByPostId = async (postId) => {
   }
 };
 
-// Create a comment
+// Comment APIs
 export const createComment = async (postId, userId, content, parentCommentId = null) => {
   try {
     const response = await axios.post(
@@ -321,7 +382,6 @@ export const createComment = async (postId, userId, content, parentCommentId = n
   }
 };
 
-// Delete a comment
 export const deleteComment = async (commentId) => {
   try {
     await axios.delete(`${API_BASE_URL}/comment/delete/${commentId}`, getAuthHeader());
@@ -331,7 +391,6 @@ export const deleteComment = async (commentId) => {
   }
 };
 
-// Get comments by post ID
 export const getCommentsByPostId = async (postId) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/comment/post/${postId}`, getAuthHeader());
@@ -342,12 +401,10 @@ export const getCommentsByPostId = async (postId) => {
   }
 };
 
-
-
-// Fetch all chats
+// Chat APIs
 export const getAllChats = async () => {
   try {
-    const response = await axios.get(`http://localhost:9094/api/chats`, getAuthHeader());
+    const response = await axios.get(`http://localhost:8080/chats`, getAuthHeader());
     return response.data;
   } catch (error) {
     console.error('Error fetching chats:', error);
@@ -355,10 +412,9 @@ export const getAllChats = async () => {
   }
 };
 
-// Fetch messages for a specific chat
 export const getMessagesByChatId = async (chatId) => {
   try {
-    const response = await axios.get(`http://localhost:9094/api/chats/${chatId}/messages`, getAuthHeader());
+    const response = await axios.get(`http://localhost:8080/messages/${chatId}/messages`, getAuthHeader());
     return response.data;
   } catch (error) {
     console.error('Error fetching messages:', error);
@@ -366,10 +422,9 @@ export const getMessagesByChatId = async (chatId) => {
   }
 };
 
-// Send a message
 export const sendMessage = async (message) => {
   try {
-    const response = await axios.post(`http://localhost:9094/api/messages`, message, getAuthHeader());
+    const response = await axios.post(`http://localhost:8080/messages`, message, getAuthHeader());
     return response.data;
   } catch (error) {
     console.error('Error sending message:', error);

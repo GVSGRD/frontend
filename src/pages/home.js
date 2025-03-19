@@ -82,6 +82,10 @@ export default function Home() {
     }
   };
 
+  const handleUserClick = (userId) => {
+    router.push(`/profile/${userId}`);
+  };
+
   return (
     <div style={{ padding: '20px', backgroundColor: '#fafafa', minHeight: '100vh' }}>
       <Head>
@@ -113,10 +117,10 @@ export default function Home() {
           <Card key={post.id} style={{ marginBottom: '20px', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)' }}>
             <CardHeader
               avatar={
-                <Avatar src={post.user.avatar} alt="User Avatar" sx={{ width: 48, height: 48 }} />
+                <Avatar src={post.user.avatar} alt="User Avatar" sx={{ width: 48, height: 48 }} onClick={() => handleUserClick(post.user.id)} />
               }
               title={
-                <Typography variant="h6" fontWeight="bold" color="text.primary">
+                <Typography variant="h6" fontWeight="bold" color="text.primary" onClick={() => handleUserClick(post.user.id)}>
                   {post.user.name}
                 </Typography>
               }
