@@ -32,7 +32,8 @@ export default function TeamDetail() {
 
         // Check if the current user is part of the team
         if (storedUserId) {
-          const teamUser = await getTeamUserByUserIdAndTeamId(storedUserId, id);
+          const teamUser = await getTeamUserByUserIdAndTeamId(id, storedUserId);
+          console.log("Hi" + teamUser.status);
           if (teamUser) {
             setJoinStatus(teamUser.status); // Set status to 'ACCEPTED' or 'PENDING'
           } else {

@@ -231,9 +231,9 @@ export const createTeamUser = async (teamUserData) => {
   }
 };
 
-export const getTeamUserByUserIdAndTeamId = async (userId, teamId) => {
+export const getTeamUserByUserIdAndTeamId = async (teamId, userId) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/team-user/user/${userId}/team/${teamId}`, getAuthHeader());
+    const response = await axios.get(`${API_BASE_URL}/team-user/team/${teamId}/user/${userId}`, getAuthHeader());
     return response.data;
   } catch (error) {
     if (error.response && error.response.status === 404) {
@@ -324,6 +324,20 @@ export const rejectRequest = async (requestId) => {
 };
 
 // Post APIs
+export const createPost = async (postData) => {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/post/create`,
+      postData,
+      getAuthHeader()
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error creating post:', error);
+    throw error;
+  }
+};
+
 export const getAllPosts = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}/post/all`, getAuthHeader());
@@ -338,7 +352,7 @@ export const createLike = async (postId, userId) => {
   try {
     const response = await axios.post(
       `${API_BASE_URL}/like/create`,
-      { post: postId, userId },
+      { postId: postId, userId: userId },
       getAuthHeader()
     );
     return response.data;
@@ -387,6 +401,20 @@ export const deleteComment = async (commentId) => {
     await axios.delete(`${API_BASE_URL}/comment/delete/${commentId}`, getAuthHeader());
   } catch (error) {
     console.error('Error deleting comment:', error);
+    throw error;
+  }
+};
+
+export const updateComment = async (commentData) => {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URL}/comment/update`,
+      commentData,
+      getAuthHeader()
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error updating comment:', error);
     throw error;
   }
 };
